@@ -6,10 +6,8 @@ class User(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     email = db.Column(db.String, nullable=False, unique=True)
     password = db.Column(db.String, nullable=False)
-    first_name = db.Column(db.String, nullable=False)
-    last_name = db.Column(db.String, nullable=False)
+    name = db.Column(db.String, nullable=False)
     phone_number = db.Column(db.Integer, nullable=True)
-    age = db.Column(db.Integer, nullable=True)
     gender = db.Column(db.String, nullable=False)
     ethnic_background = db.Column(db.String, nullable=False)
     experience = db.Column(db.Integer, nullable=False)
@@ -41,7 +39,6 @@ class Mentees(db.Model):
     mentee_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     need_help = db.Column(db.String, nullable=False)
-    why_be_engineer = db.Column(db.String, nullable=False)
     mentor_id = db.Column(db.Integer, db.ForeignKey('mentors.mentor_id'))
 
     #relationship
