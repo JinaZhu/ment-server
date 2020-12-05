@@ -13,7 +13,7 @@ class User(db.Model):
     gender = db.Column(db.String, nullable=False)
     ethnic_background = db.Column(db.String, nullable=False)
     experience = db.Column(db.Integer, nullable=False)
-    link = db.Column(db.String, nullable= True)
+    link = db.Column(db.String, nullable=True)
     about_me = db.Column(db.String, nullable=False)
 
     def __repr__(self):
