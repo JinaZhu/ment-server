@@ -58,27 +58,27 @@ def handle_login():
     else:
         return "Incorrect email or password" 
 
-# @api.route("/matching")
-# def matching():
-#     #who's in session? Mentor or Mentee?
-#     user_id = session.get('user_id')
-#     user = User.query.filter_by(user_id)
-#     #add ment_type collumn to User table on db
+@api.route("/matching")
+def matching():
+    #who's in session? Mentor or Mentee?
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id)
+    #add ment_type collumn to User table on db
 
-#     #if mentor:
-#         # query mentees where mentee.id is Null and mentor.ethnic_backgound != mentee.ethnic_background and 
-#         # mentor.knowledge == mentee.need_help 
-#         # select the first metee that meets those requirements
-#         # add mentee_id id to db 
-#         # return mentee
+    #if mentor:
+        # query mentees where mentee.id is Null and mentor.ethnic_backgound != mentee.ethnic_background and 
+        # mentor.knowledge == mentee.need_help 
+        # select the first metee that meets those requirements
+        # add mentee_id id to db 
+        # return mentee
         
-#     if user.ment_type == "mentor":
-#         mentees = session.query(Mentee).filter()
+    if user.ment_type == "mentor":
+        mentees = session.query(Mentee).filter()
 
 
-#     #if mentee:
-#         # query mentors where mentor.id is Null and mentee.ethnic_background != mentor.ethnic_backgound and 
-#         # mentee.need_help == mentor.knowledge
-#         # select the first metee that meets those requirements
-#         # add mentor_id to db 
-#         # return mentor
+    #if mentee:
+        # query mentors where mentor.id is Null and mentee.ethnic_background != mentor.ethnic_backgound and 
+        # mentee.need_help == mentor.knowledge
+        # select the first metee that meets those requirements
+        # add mentor_id to db 
+        # return mentor
