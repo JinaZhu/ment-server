@@ -32,7 +32,6 @@ def mentee_signup():
 
     form_data = request.get_json()
     new_user = create_user(form_data, "mentee")  
-    print("###############", type(new_user.id)) 
 
     # add mentee to Mentee table
     new_need_help = form_data["need_help"]
