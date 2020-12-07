@@ -31,15 +31,15 @@ def mentee_signup():
     """ Adds new user to User table and new mentee to mentor table """
 
     form_data = request.get_json()
-    new_user = create_user(form_data, "mentee")   
+    new_user = create_user(form_data, "mentee")  
 
     # add mentee to Mentee table
-    new_need_help = request.form.get("need_help")
+    new_need_help = form_data["need_help"]
     new_mentee = Mentee(user_id=new_user.id, need_help=new_need_help)
     db.session.add(new_mentee)
     db.session.commit()
 
-    return 200
+    return jsonify({'success':True}), 200
 
 @api.route("/handle-login", methods=["POST"])
 def handle_login():
