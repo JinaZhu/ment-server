@@ -1,4 +1,5 @@
-from .model import User, Mentor, Mentee, db
+from .model import User, Mentor, Mentee
+from .extensions import db
 
 
 def create_user(form_data, ment_type):

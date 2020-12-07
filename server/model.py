@@ -48,3 +48,4 @@ class Mentee(db.Model):
 
     def __repr__(self):
         return f"<mentees={self.mentee_id}>"
+
