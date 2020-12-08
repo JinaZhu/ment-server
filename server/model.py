@@ -5,7 +5,7 @@ class User(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     email = db.Column(db.String, nullable=False, unique=True)
-    hashed_password = db.Column(db.Text, nullable=False)
+    hashed_password = db.Column(db.String, nullable=False)
     name = db.Column(db.String, nullable=False)
     phone_number = db.Column(db.String, nullable=True)
     gender = db.Column(db.String, nullable=False)
@@ -75,4 +75,3 @@ class Mentee(db.Model):
 
     def __repr__(self):
         return f"<mentees={self.mentee_id}>"
-
