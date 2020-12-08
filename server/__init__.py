@@ -3,7 +3,7 @@ import os
 
 from .extensions import db 
 from .api import api
-from .commands import create_tables
+from .commands import create_tables, seed_db
 
 def create_app(config_file="settings.py"):
     app = Flask(__name__)
@@ -14,6 +14,9 @@ def create_app(config_file="settings.py"):
     app.register_blueprint(api)
 
     app.cli.add_command(create_tables)
+
+    app.cli.add_command(seed_db)
+    
 
     return app
     
