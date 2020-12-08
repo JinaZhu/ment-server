@@ -1,6 +1,5 @@
-from .model import User, Mentor, Mentee
-from .extensions import db
-
+from .model import User
+from .extensions import db, guard
 
 def create_user(form_data, ment_type):
     """ helper function to add new user to User table """
@@ -15,10 +14,9 @@ def create_user(form_data, ment_type):
     new_about_me = form_data['about_me']
     ment_type = ment_type
 
-
-    new_user = User(email=new_email, 
-                    password=new_password, 
-                    name=new_name, 
+    new_user = User(email=new_email,
+                    hashed_password=guard.hash_password(new_password),
+                    name=new_name,
                     phone_number=new_phone_number,
                     gender=new_gender,
                     ethnic_background=new_ethnic_background,
