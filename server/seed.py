@@ -28,18 +28,15 @@ def populate_db():
                         ment_type = random.choice(ment_types)  
                         )
         db.session.add(new_user)
-        db.commit()
+        db.session.commit()
 
-        if ment_type == "mentor":
+        if new_user.ment_type == "mentor":
             new_mentor = Mentor(user_id=new_user.id, company = fake.bs(), knowledge=random.choice(topics))
             db.session.add(new_mentor)
             db.session.commit()
         
-        elif ment_type == "mentee":
+        elif new_user.ment_type == "mentee":
             new_mentee = Mentee(user_id=new_user.id, need_help=random.choice(topics))
             db.session.add(new_mentee)
             db.session.commit()
 
-if __name__ == "__main__":
-
-    populate_db()
