@@ -1,12 +1,12 @@
 from flask import (Blueprint, jsonify, session, request)
+from flask_praetorian import auth_required
 from flask_cors import CORS
-from .helper import *
+from .extensions import db, guard
+from .helper import create_user
 import json
 
 api = Blueprint("api", __name__)
-
 CORS(api)
-
 
 @api.route('/mentor/signup', methods=['POST'])
 def mentor_signup():
@@ -50,13 +50,17 @@ def handle_login():
     email = form_data['email']
     password = form_data["password"]
 
-    user = User.query.filter_by(email=email).first()
+    # user = User.query.filter_by(email=email).first()
+    user = guard.authenticate(email, password)
+    ret = {"access token": guard.encode_jwt_token(user)}
 
-    if password == user.password:
-        session["logged_in_user"] = user
-        return 200
-    else:
-        return "Incorrect email or password" 
+    # if password == user.password:
+    #     session["logged_in_user"] = user
+    #     return 200
+    # else:
+    #     return "Incorrect email or password"
+
+    return (jsonify(ret), 200)
 
 @api.route("/matching")
 def matching():

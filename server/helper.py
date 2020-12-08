@@ -1,6 +1,5 @@
 from .model import User, Mentor, Mentee, db
 
-
 def create_user(form_data, ment_type):
     """ helper function to add new user to User table """
     new_email = form_data['email']
@@ -13,7 +12,6 @@ def create_user(form_data, ment_type):
     new_link = form_data['link']
     new_about_me = form_data['about_me']
     ment_type = ment_type
-
 
     new_user = User(email=new_email, 
                     password=new_password, 
