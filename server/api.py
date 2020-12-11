@@ -54,7 +54,7 @@ def handle_login():
     user = User.query.filter_by(email=email).first()
     
     #CREATE SESSION HERE
-
+    #create a conditional if email isn't found on db
     if password == user.password:
 
         return jsonify({"success":True, "user_id" : user.id},), 200
@@ -76,27 +76,53 @@ def matching():
         mentor = db.session.query(Mentor).filter_by(user_id=user_id).first()
         user_mentee = db.session.query(User).join(Mentee).filter(User.ethnic_background != user.ethnic_background, Mentee.need_help == mentor.knowledge, Mentee.mentor == None).first()
 
-        return jsonify({"success":True, 
+        return jsonify({"success":True,  #return only user_id and user name
                         "user_id":user_mentee.id,
-                        "user_name":user_mentee.name,
-                        "user_phone":user_mentee.phone_number,
-                        "user_gender":user_mentee.gender,
-                        "user_ethnic_background": user_mentee.ethnic_background,
-                        "user_experience": user_mentee.experience,
-                        "user_link": user_mentee.link,
-                        "user_about_me": user_mentee.about_me}), 200 
+                        "user_name":user_mentee.name,}), 200 
 
     if user.ment_type == "mentee":
         mentee = db.session.query(Mentee).filter_by(user_id=user_id).first()
         user_mentor = db.session.query(User).join(Mentor).filter(User.ethnic_background != user.ethnic_background, Mentor.knowledge == mentee.need_help, Mentor.mentee == None).first()
 
         return jsonify({"success":True, 
-                        "match":user_mentor.id
-                        "user_name":user_mentor.name,
-                        "user_phone":user_mentor.phone_number,
-                        "user_gender":user_mentor.gender,
-                        "user_ethnic_background": user_mentor.ethnic_background,
-                        "user_experience": user_mentor.experience,
-                        "user_link": user_mentor.link,
-                        "user_about_me": user_mentor.about_me}), 200
+                        "user_id":user_mentor.id,
+                        "user_name":user_mentor.name,}), 200
 
+@api.route("/display-user-info", methods=["POST"])
+def display_user_info():
+    form_data = request.get_json()
+    user_id = form_data["user_id"]
+    user = User.query.filter_by(id=user_id).first()
+
+    print("########################",user.ment_type)
+
+    if user.ment_type == "mentor":
+
+        mentor = Mentor.query.filter_by(user_id=user_id)
+        return jsonify({"success":True,
+                        "user_id":user.id,
+                        "name":user.name,
+                        "phone":user.phone_number,
+                        "gender":user.gender,
+                        "ethnic_background": user.ethnic_background,
+                        "experience": user.experience,
+                        "link": user.link,
+                        "about_me": user.about_me,
+                        "ment_type": user.ment_type,
+                        "company": mentor.company,
+                        "knowledge": mentor.knowledge}), 200
+
+    else:
+        mentee = Mentee.query.filter_by(user_id=user_id).first()
+
+        return jsonify({"success":True,
+                        "user_id":user.id,
+                        "name":user.name,
+                        "phone":user.phone_number,
+                        "gender":user.gender,
+                        "ethnic_background": user.ethnic_background,
+                        "experience": user.experience,
+                        "link": user.link,
+                        "about_me": user.about_me,
+                        "ment_type": user.ment_type,
+                        "need_help": mentee.need_help}), 200
