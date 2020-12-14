@@ -2,7 +2,7 @@ from flask import Flask
 
 from .extensions import db, guard
 from .api import api
-from .commands import create_tables, seed_db
+from .commands import create_tables, seed_db, create_users
 from .model import User
 
 def create_app(config_file="settings.py"):
@@ -20,4 +20,5 @@ def create_app(config_file="settings.py"):
 
     app.cli.add_command(seed_db)
     
+    app.cli.add_command(create_users)
     return app

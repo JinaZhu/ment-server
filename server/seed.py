@@ -17,7 +17,8 @@ def populate_db():
     for i in range(101):
         new_user = User(
                         email=fake.email(),
-                        hashed_password=guard.hash_password(fake.password()),
+                        password=guard.hash_password(fake.password()),
+                        roles='user',
                         name=fake.name(),
                         phone_number=fake.phone_number(),
                         gender=random.choice(genders),

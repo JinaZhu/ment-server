@@ -1,5 +1,5 @@
 from flask import (Blueprint, jsonify, request)
-from flask_praetorian import auth_required
+from flask_praetorian import auth_required, current_user
 from flask_cors import CORS
 from .extensions import db, guard
 from .helper import create_user
@@ -54,14 +54,16 @@ def handle_login():
        $ curl http://localhost:5000/login -X POST \
          -d '{"username":"Walter","password":"calmerthanyouare"}'
     """
-    form_data = request.get_json()
+    form_data = request.get_json(force=True)
 
     email = form_data["email"]
-    hashed_password = form_data["password"]
+    password = form_data["password"]
 
     # user = User.query.filter_by(email=email).first()
-    user = guard.authenticate(email, hashed_password)
-    ret = {'access_token': guard.encode_jwt_token(user)}
+    user = guard.authenticate(email, password)
+    token = guard.encode_jwt_token(user)
+    print(token)
+
     #CREATE SESSION HERE
     
     # if password == user.password:
@@ -69,7 +71,13 @@ def handle_login():
     #     return jsonify({"success":True, "user_id" : user.id},), 200
     # else:
     #     return jsonify({"message": "Incorrect email or password", "user_id": ""}), 401
-    return (jsonify(ret), 200)
+
+    #return user id
+    return (jsonify({'access_token': token}), 200)
+
+@api.route('/open')
+def open():
+    return jsonify({'result': 'Hello'})
 
 @api.route('/refresh', methods=['POST'])
 def refresh():
@@ -83,9 +91,9 @@ def refresh():
     print('refresh request')
     old_token = request.get_data()
     new_token = guard.refresh_jwt_token(old_token)
-    res = {'access_token': new_token}
+    ret = {'access_token': new_token}
 
-    return res, 200
+    return ret, 200
 
 @api.route('/protected')
 @auth_required
@@ -97,7 +105,8 @@ def protected():
     $ curl http://loclahost:5000/api/protected -X GET \
         -H "Authorization: Bearer <your_token>"
     """
-    return {"message": f'protexted endpoint (allowed user {guard.current_user().email})'}
+    return jsonify(message="protected endpoint (allowed user {})".format(
+        current_user().email,))
 
 @api.route("/matching", methods=["POST"])
 def matching():

@@ -5,7 +5,7 @@ class User(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     email = db.Column(db.String, nullable=False, unique=True)
-    hashed_password = db.Column(db.String, nullable=False)
+    password = db.Column(db.Text, nullable=False)
     name = db.Column(db.String, nullable=False)
     phone_number = db.Column(db.String, nullable=True)
     gender = db.Column(db.String, nullable=False)
@@ -27,10 +27,6 @@ class User(db.Model):
             return self.roles.split(",")
         except Exception:
             return []
-
-    @property
-    def password(self):
-        return self.hashed_password
     
     @classmethod
     def lookup(cls, email):
@@ -42,9 +38,6 @@ class User(db.Model):
     
     def is_valid(self):
         return self.is_active
-
-    def __repr__(self):
-        return f"<users={self.email}>"
 
 class Mentor(db.Model):
     __tablename__ = 'mentors'
