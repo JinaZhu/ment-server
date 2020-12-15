@@ -143,9 +143,13 @@ def display_user_info():
     user_id = form_data["user_id"]
     user = User.query.filter_by(id=user_id).first()
 
+    print("#########", user.ment_type)
+    print("")
+
     if user.ment_type == "mentor":
 
-        mentor = Mentor.query.filter_by(user_id=user_id)
+        mentor = Mentor.query.filter_by(user_id=user_id).first()
+
         return jsonify({"success":True,
                         "user_id":user.id,
                         "name":user.name,
