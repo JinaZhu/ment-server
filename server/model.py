@@ -5,7 +5,7 @@ class User(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     email = db.Column(db.String, nullable=False, unique=True)
-    password = db.Column(db.String, nullable=False)
+    hashed_password = db.Column(db.String, nullable=False)
     name = db.Column(db.String, nullable=False)
     phone_number = db.Column(db.String, nullable=True)
     gender = db.Column(db.String, nullable=False)
@@ -14,7 +14,34 @@ class User(db.Model):
     link = db.Column(db.String, nullable=True)
     about_me = db.Column(db.String, nullable=False)
     ment_type = db.Column(db.String, nullable=False)
+    roles = db.Column(db.String)
+    is_active = db.Column(db.Boolean, default=True, server_default="true")
 
+    @property
+    def identity(self):
+        return self.id
+
+    @property
+    def rolenames(self):
+        try:
+            return self.roles.split(",")
+        except Exception:
+            return []
+
+    @property
+    def password(self):
+        return self.hashed_password
+    
+    @classmethod
+    def lookup(cls, email):
+        return cls.query.filter_by(email=email).one_or_none()
+    
+    @classmethod
+    def identify(cls, id):
+        return cls.query.filter_by(id=id).one_or_none()
+    
+    def is_valid(self):
+        return self.is_active
 
     def __repr__(self):
         return f"<users={self.email}>"
@@ -48,4 +75,3 @@ class Mentee(db.Model):
 
     def __repr__(self):
         return f"<mentees={self.mentee_id}>"
-

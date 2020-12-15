@@ -1,12 +1,12 @@
-from flask import (Blueprint, jsonify, session, request)
+from flask import (Blueprint, jsonify, request)
+from flask_praetorian import auth_required
 from flask_cors import CORS
-from .helper import *
-import json
+from .extensions import db, guard
+from .helper import create_user
+from .model import User, Mentor, Mentee
 
 api = Blueprint("api", __name__)
 CORS(api)
-
-
 
 @api.route("/mentor/signup", methods=["POST"])
 def mentor_signup():
@@ -22,42 +22,82 @@ def mentor_signup():
     db.session.add(new_mentor)
     db.session.commit()
 
-  
-    return jsonify({"success":True, "user_id" : new_user.id}), 200
+    #CREATE SESSION HERE
+    # session['id'] = guard.current_user().id
+    # session['email'] = guard.current_user().email
+
+    return jsonify({"success": True, "user_id": new_user.id}), 200
         
 @api.route("/mentee/signup", methods=["POST"])
 def mentee_signup():
     """ Adds new user to User table and new mentee to mentor table """
 
     form_data = request.get_json()
-    new_user = create_user(form_data, "mentee")  
-
+    new_user = create_user(form_data, "mentee")
+    # add mentee to Mentee table
     new_need_help = form_data["need_help"]
     new_mentee = Mentee(user_id=new_user.id, need_help=new_need_help)
     db.session.add(new_mentee)
     db.session.commit()
 
-    return jsonify({"success":True, "user_id" : new_user.id}), 200
+    #CREATE SESSION HERE
+
+    return jsonify({"success": True, "user_id": new_user.id}), 200
 
 @api.route("/login", methods=["POST"])
 def handle_login():
     """ Logs in existent User """
-
+    """
+    Logs a user in by parsing a POST request containing user credentials and
+    issuing a JWT token.
+    .. example::
+       $ curl http://localhost:5000/login -X POST \
+         -d '{"username":"Walter","password":"calmerthanyouare"}'
+    """
     form_data = request.get_json()
 
     email = form_data["email"]
-    password = form_data["password"]
+    hashed_password = form_data["password"]
 
-    user = User.query.filter_by(email=email).first()
+    # user = User.query.filter_by(email=email).first()
+    user = guard.authenticate(email, hashed_password)
+    ret = {'access_token': guard.encode_jwt_token(user)}
+    #CREATE SESSION HERE
     
-    if email == user.email:
-        if password == user.password:
+    # if password == user.password:
 
-            return jsonify({"success":True, "user_id" : user.id},), 200
-        else:
-            return jsonify({"message": "Incorrect password", "user_id": ""}), 401
-    else:
-        return jsonify({"message": "Incorrect email"}), 401
+    #     return jsonify({"success":True, "user_id" : user.id},), 200
+    # else:
+    #     return jsonify({"message": "Incorrect email or password", "user_id": ""}), 401
+    return (jsonify(ret), 200)
+
+@api.route('/refresh', methods=['POST'])
+def refresh():
+    """
+    Refreshes an existing JWT by creating a new one that is a copy of the old
+    except that it has a refreshed access expiration.
+    .. example::
+    $ curl http://localhost:5000/api/refresh -X GET \
+        -H "Authorization: Bearer <your_token>"
+    """
+    print('refresh request')
+    old_token = request.get_data()
+    new_token = guard.refresh_jwt_token(old_token)
+    res = {'access_token': new_token}
+
+    return res, 200
+
+@api.route('/protected')
+@auth_required
+def protected():
+    """
+    A protected endpoint. The auth_required decorate will require a header
+    containing a valid JWT
+    .. example::
+    $ curl http://loclahost:5000/api/protected -X GET \
+        -H "Authorization: Bearer <your_token>"
+    """
+    return {"message": f'protexted endpoint (allowed user {guard.current_user().email})'}
 
 @api.route("/matching", methods=["POST"])
 def matching():
@@ -65,10 +105,10 @@ def matching():
     form_data = request.get_json()
     user_id = form_data["user_id"]
 
-    if user_id != None:
+    if user_id is not None:
         user = User.query.filter_by(id=user_id).first()
     else:
-        return jsonify({"message":"failed"}), 401
+        return jsonify({"message": "failed"}), 401
         
     if user.ment_type == "mentor":
         mentor = db.session.query(Mentor).filter_by(user_id=user_id).first()
@@ -85,6 +125,7 @@ def matching():
         return jsonify({"success":True, 
                         "user_id":user_mentor.id,
                         "user_name":user_mentor.name,}), 200
+
 
 @api.route("/display-user-info", methods=["POST"])
 def display_user_info():
