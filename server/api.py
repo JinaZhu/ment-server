@@ -14,7 +14,7 @@ def mentor_signup():
     
     form_data = request.get_json()
     new_user = create_user(form_data, "mentor")
-    # add new mentor to Mentor table
+
     new_company = form_data["company"]
     new_knowledge = form_data["knowledge"]
     new_mentor = Mentor(user_id=new_user.id, company=new_company, knowledge=new_knowledge)
@@ -22,7 +22,6 @@ def mentor_signup():
     db.session.add(new_mentor)
     db.session.commit()
 
-    #CREATE SESSION HERE
   
     return jsonify({"success":True, "user_id" : new_user.id}), 200
         
@@ -32,13 +31,11 @@ def mentee_signup():
 
     form_data = request.get_json()
     new_user = create_user(form_data, "mentee")  
-    # add mentee to Mentee table
+
     new_need_help = form_data["need_help"]
     new_mentee = Mentee(user_id=new_user.id, need_help=new_need_help)
     db.session.add(new_mentee)
     db.session.commit()
-
-    #CREATE SESSION HERE
 
     return jsonify({"success":True, "user_id" : new_user.id}), 200
 
@@ -53,17 +50,18 @@ def handle_login():
 
     user = User.query.filter_by(email=email).first()
     
-    #CREATE SESSION HERE
-    #create a conditional if email isn't found on db
-    if password == user.password:
+    if email == user.email:
+        if password == user.password:
 
-        return jsonify({"success":True, "user_id" : user.id},), 200
+            return jsonify({"success":True, "user_id" : user.id},), 200
+        else:
+            return jsonify({"message": "Incorrect password", "user_id": ""}), 401
     else:
-        return jsonify({"message": "Incorrect email or password", "user_id": ""}), 401
+        return jsonify({"message": "Incorrect email"}), 401
 
 @api.route("/matching", methods=["POST"])
 def matching():
-
+    """Finds a match mentor/mentee based on experience/interests and different ethnicity"""
     form_data = request.get_json()
     user_id = form_data["user_id"]
 
@@ -76,7 +74,7 @@ def matching():
         mentor = db.session.query(Mentor).filter_by(user_id=user_id).first()
         user_mentee = db.session.query(User).join(Mentee).filter(User.ethnic_background != user.ethnic_background, Mentee.need_help == mentor.knowledge, Mentee.mentor == None).first()
 
-        return jsonify({"success":True,  #return only user_id and user name
+        return jsonify({"success":True,  
                         "user_id":user_mentee.id,
                         "user_name":user_mentee.name,}), 200 
 
@@ -90,11 +88,10 @@ def matching():
 
 @api.route("/display-user-info", methods=["POST"])
 def display_user_info():
+    "Returns user information to display user profile"
     form_data = request.get_json()
     user_id = form_data["user_id"]
     user = User.query.filter_by(id=user_id).first()
-
-    print("########################",user.ment_type)
 
     if user.ment_type == "mentor":
 
